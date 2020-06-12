@@ -84,6 +84,7 @@ namespace BulkZipper
                         labelProcessing.Text = fileName;
 
                         Ionic.Zip.ZipFile zip = new Ionic.Zip.ZipFile();
+                        zip.ParallelDeflateThreshold = -1;
                         zip.AddEntry(fileName, File.ReadAllBytes(file));
 
                         if (File.Exists(zippedName))
