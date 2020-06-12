@@ -75,13 +75,18 @@ namespace BulkZipper
                     {
                         if (stop)
                         {
-                            Thread.CurrentThread.Abort();
                             stop = false;
+                            Thread.CurrentThread.Abort();
                         }
 
                         var zippedName = textBoxFolder.Text + "\\" + GetFileNameNoExtension(file) + ".zip";
                         var fileName = GetFileName(file);
-                        labelProcessing.Text = fileName;
+
+                        labelProcessing.Invoke((MethodInvoker)delegate
+                        {
+                            labelProcessing.Text = fileName;
+                            labelProcessing.Refresh();
+                        });
 
                         Ionic.Zip.ZipFile zip = new Ionic.Zip.ZipFile();
                         zip.ParallelDeflateThreshold = -1;
@@ -93,13 +98,23 @@ namespace BulkZipper
                         }
 
                         zip.Save(zippedName);
-                        labelCount.Text = index.ToString();
-                        labelCount.Refresh();
+
+                        labelCount.Invoke((MethodInvoker)delegate
+                        {
+                            labelCount.Text = index.ToString();
+                            labelCount.Refresh();
+                        });
+
                         index++;
                     }
-                }).Start();
 
-                labelProcessing.Text = "Done!";
+
+                    labelProcessing.Invoke((MethodInvoker)delegate
+                    {
+                        labelProcessing.Text = "Done!";
+                        labelProcessing.Refresh();
+                    });
+                }).Start();
             }
             catch (Exception ex)
             {
