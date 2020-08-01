@@ -53,73 +53,144 @@ namespace BulkZipper
                     return;
                 }
 
-                if (textBoxExtension.Text == "")
+                if (textBoxExtension.Text == "" && !checkBoxDir.Checked)
                 {
                     MessageBox.Show("Type a extension", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-                var files = Directory.GetFiles(textBoxFolder.Text, "*." + textBoxExtension.Text);
-
-                if (files == null || files.Length == 0)
+                if (checkBoxDir.Checked)
                 {
-                    MessageBox.Show("No files found", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    ZipDirectories();
+                }
+                else
+                {
+                    ZipFiles();
                 }
 
-                int index = 1;
-
-                new Thread(() =>
-                {
-                    foreach (var file in files)
-                    {
-                        if (stop)
-                        {
-                            stop = false;
-                            Thread.CurrentThread.Abort();
-                        }
-
-                        var zippedName = textBoxFolder.Text + "\\" + GetFileNameNoExtension(file) + ".zip";
-                        var fileName = GetFileName(file);
-
-                        labelProcessing.Invoke((MethodInvoker)delegate
-                        {
-                            labelProcessing.Text = fileName;
-                            labelProcessing.Refresh();
-                        });
-
-                        Ionic.Zip.ZipFile zip = new Ionic.Zip.ZipFile();
-                        zip.ParallelDeflateThreshold = -1;
-                        zip.AddEntry(fileName, File.ReadAllBytes(file));
-
-                        if (File.Exists(zippedName))
-                        {
-                            File.Delete(zippedName);
-                        }
-
-                        zip.Save(zippedName);
-
-                        labelCount.Invoke((MethodInvoker)delegate
-                        {
-                            labelCount.Text = index.ToString();
-                            labelCount.Refresh();
-                        });
-
-                        index++;
-                    }
-
-
-                    labelProcessing.Invoke((MethodInvoker)delegate
-                    {
-                        labelProcessing.Text = "Done!";
-                        labelProcessing.Refresh();
-                    });
-                }).Start();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void ZipFiles()
+        {
+
+            var files = Directory.GetFiles(textBoxFolder.Text, "*." + textBoxExtension.Text);
+
+            if (files == null || files.Length == 0)
+            {
+                MessageBox.Show("No files found", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            int index = 1;
+
+            new Thread(() =>
+            {
+                foreach (var file in files)
+                {
+                    if (stop)
+                    {
+                        stop = false;
+                        Thread.CurrentThread.Abort();
+                    }
+
+                    var zippedName = textBoxFolder.Text + "\\" + GetFileNameNoExtension(file) + ".zip";
+                    var fileName = GetFileName(file);
+
+                    labelProcessing.Invoke((MethodInvoker)delegate
+                    {
+                        labelProcessing.Text = fileName;
+                        labelProcessing.Refresh();
+                    });
+
+                    Ionic.Zip.ZipFile zip = new Ionic.Zip.ZipFile();
+                    zip.ParallelDeflateThreshold = -1;
+                    zip.AddEntry(fileName, File.ReadAllBytes(file));
+
+                    if (File.Exists(zippedName))
+                    {
+                        File.Delete(zippedName);
+                    }
+
+                    zip.Save(zippedName);
+
+                    labelCount.Invoke((MethodInvoker)delegate
+                    {
+                        labelCount.Text = index.ToString();
+                        labelCount.Refresh();
+                    });
+
+                    index++;
+                }
+
+                labelProcessing.Invoke((MethodInvoker)delegate
+                {
+                    labelProcessing.Text = "Done!";
+                    labelProcessing.Refresh();
+                });
+            }).Start();
+        }
+
+        private void ZipDirectories()
+        {
+            var dirs = Directory.GetDirectories(textBoxFolder.Text);
+
+            if (dirs == null || dirs.Length == 0)
+            {
+                MessageBox.Show("No directories found", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            int index = 1;
+
+            new Thread(() =>
+            {
+                foreach (var dir in dirs)
+                {
+                    if (stop)
+                    {
+                        stop = false;
+                        Thread.CurrentThread.Abort();
+                    }
+
+                    labelProcessing.Invoke((MethodInvoker)delegate
+                    {
+                        labelProcessing.Text = GetFileName(dir);
+                        labelProcessing.Refresh();
+                    });
+                    
+                    var zippedName = textBoxFolder.Text + "\\" + GetFileName(dir) + ".zip";
+                    Ionic.Zip.ZipFile zip = new Ionic.Zip.ZipFile();
+                    zip.ParallelDeflateThreshold = -1;
+                    zip.AddDirectory(dir);
+
+                    if (File.Exists(zippedName))
+                    {
+                        File.Delete(zippedName);
+                    }
+
+                    zip.Save(zippedName);
+
+                    labelCount.Invoke((MethodInvoker)delegate
+                    {
+                        labelCount.Text = index.ToString();
+                        labelCount.Refresh();
+                    });
+
+                    index++;
+                }
+
+
+                labelProcessing.Invoke((MethodInvoker)delegate
+                {
+                    labelProcessing.Text = "Done!";
+                    labelProcessing.Refresh();
+                });
+            }).Start();
         }
 
         public static string GetFileNameNoExtension(string file)
@@ -147,6 +218,11 @@ namespace BulkZipper
         private void buttonStop_Click(object sender, EventArgs e)
         {
             stop = true;
+        }
+
+        private void checkBoxDir_CheckedChanged(object sender, EventArgs e)
+        {
+            textBoxExtension.Enabled = !checkBoxDir.Checked;
         }
     }
 }

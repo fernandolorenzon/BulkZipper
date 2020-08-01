@@ -39,6 +39,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.labelProcessing = new System.Windows.Forms.Label();
             this.buttonStop = new System.Windows.Forms.Button();
+            this.checkBoxDir = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // buttonZip
@@ -144,11 +145,23 @@
             this.buttonStop.UseVisualStyleBackColor = true;
             this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
             // 
+            // checkBoxDir
+            // 
+            this.checkBoxDir.AutoSize = true;
+            this.checkBoxDir.Location = new System.Drawing.Point(235, 93);
+            this.checkBoxDir.Name = "checkBoxDir";
+            this.checkBoxDir.Size = new System.Drawing.Size(39, 17);
+            this.checkBoxDir.TabIndex = 11;
+            this.checkBoxDir.Text = "Dir";
+            this.checkBoxDir.UseVisualStyleBackColor = true;
+            this.checkBoxDir.CheckedChanged += new System.EventHandler(this.checkBoxDir_CheckedChanged);
+            // 
             // FormBulkZipper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 234);
+            this.Controls.Add(this.checkBoxDir);
             this.Controls.Add(this.buttonStop);
             this.Controls.Add(this.labelProcessing);
             this.Controls.Add(this.label4);
@@ -180,6 +193,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label labelProcessing;
         private System.Windows.Forms.Button buttonStop;
+        private System.Windows.Forms.CheckBox checkBoxDir;
     }
 }
 
